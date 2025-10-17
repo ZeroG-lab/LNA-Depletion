@@ -96,7 +96,11 @@ accumulateFragments <- function(x, accumulate, ntop = 10000, fuzzyness = 3){
     }else{print("accumulate must be either 'sequence', 'shortest' or 'fuzzy'")}
     # Sum up counts and collapse all mappings into a single character string
     temp <- temp[order(nchar(temp$Sequence)),]
-    temp[1,3:(2+length(sequence_counts_list))] <- colSums(temp[,3:(2+length(sequence_counts_list))])
+    if(length(bam_files) == 1){
+      temp[1,3:(2+length(sequence_counts_list))] <- sum(temp[,3:(2+length(sequence_counts_list))])
+    }else{
+      temp[1,3:(2+length(sequence_counts_list))] <- colSums(temp[,3:(2+length(sequence_counts_list))])
+      }
     if(length(paste(unique(na.omit(temp$Gene_ID)), sep = ",")) > 0){
       temp$Gene_ID[1] <- paste(sort(unique(na.omit(temp$Gene_ID))), collapse = ",")
     }else temp$Gene_ID[1] <- NA
@@ -108,7 +112,11 @@ accumulateFragments <- function(x, accumulate, ntop = 10000, fuzzyness = 3){
     y <- y[grep(k, y, invert = TRUE)]
     print(paste(length(y), "of", ylen, "sequences remaining"))
   }
-  return(contams[order(-rowSums(contams[, 3:(2+length(sequence_counts_list))])),])
+  if(length(bam_files) == 1){
+  return(contams[order(-contams[, 3:(2+length(sequence_counts_list))]),])
+  }else{
+    return(contams[order(-rowSums(contams[, 3:(2+length(sequence_counts_list))])),])
+  }
 }
 
 # Select annotation file (GTF)
@@ -161,8 +169,12 @@ for (i in names(combined_sequence_counts)) {
   rm(i)
 }
 
-# Merge all lists into one (takes some time)
-combined_sequence_counts <- Reduce(function(x, y) merge(x, y, by = c("sequences", "gene_id", "rnd_ID"), all = TRUE), combined_sequence_counts)
+# Merge all lists into one (takes some time). Or in case of single file reorder columns
+if(length(bam_files) == 1){
+  combined_sequence_counts <- combined_sequence_counts[[1]][,c(1,3,4,2)]
+  }else{
+    combined_sequence_counts <- Reduce(function(x, y) merge(x, y, by = c("sequences", "gene_id", "rnd_ID"), all = TRUE), combined_sequence_counts)
+    }
 
 # Clean up random gene ids and colnames
 combined_sequence_counts <- combined_sequence_counts[,-3]
@@ -179,8 +191,11 @@ combined_sequence_counts[is.na(combined_sequence_counts)] <- 0
 combined_sequence_counts$Gene_ID[combined_sequence_counts$Gene_ID == 0] <- NA
 
 # Sort by row-wise sums
-combined_sequence_counts <- combined_sequence_counts[order(rowSums(combined_sequence_counts[,c(names(sequence_counts_list))]), decreasing = TRUE),]
-
+if(length(bam_files) == 1){
+  print("Skipping. Table already sorted.")
+  }else{
+    combined_sequence_counts <- combined_sequence_counts[order(rowSums(combined_sequence_counts[,c(names(sequence_counts_list))]), decreasing = TRUE),]
+    }
 
 # SUMMARIZE SEQUENCES ###############################################################################
 
@@ -224,7 +239,11 @@ heatmap_data$Sequence <- factor(heatmap_data$Sequence, levels = rev(unique(heatm
 #                                 )
 
 # Calculate percentages to add to plot
-heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(colSums(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))])), "%")
+if(length(bam_files) == 1){
+  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(sum(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))])), "%")
+}else{
+  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(colSums(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))])), "%")
+}
 
 # Optional: Cleanup sample names for plotting
 #heatmap_data$Sample <- gsub("PATTERN","", heatmap_data$Sample) #change PATTERN to what you want to remove from the sample name
