@@ -17,7 +17,5 @@ Open the Contam_Ident.R script in R-Studio with a current R version (4.0+).
 
 Install and load all necessary packages as indicated in the script and follow the included instructions line by line.
 
-In case you just want to test the script, skip ahead to line 202 and import the provided Contaminants.csv file.
+In case you just want to test the script, skip ahead to line 217 and import the provided Contaminants.csv file.
 This file contains the summarized contaminants from our growth condition tests and lets you try out the plotting functions.
-
-**Attention**: The script currently expects at least two samples. If you only have a single sample, make a copy of the .bam file and pretend to have two samples. A single sample will lead to errors. This problem will be fixed in the future.
