@@ -232,11 +232,11 @@ heatmap_data$Sequence <- paste0("...", heatmap_data$Sequence, "..."
 # Order heatmap by average percentage
 heatmap_data$Sequence <- factor(heatmap_data$Sequence, levels = rev(unique(heatmap_data$Sequence)), ordered = TRUE)
 
-# Order heatmap by specific sample. Uncomment and insert name of sample you want to order by.
-#orderSample <- "SAMPLENAME"
-#heatmap_data$Sequence <- factor(subset(heatmap_data, Sample == orderSample)[,2],
-#                                 levels = subset(heatmap_data, Sample == orderSample)[order(subset(heatmap_data, Sample == orderSample)$Count, decreasing = FALSE),2], ordered = TRUE
-#                                 )
+# Order heatmap by specific sample. Uncomment and insert number of sample you want to order by.
+# orderSample <- unique(heatmap_data$Sample)[1]
+# heatmap_data$Sequence <- factor(subset(heatmap_data, Sample == orderSample)[,1],
+#                                 levels = subset(heatmap_data, Sample == orderSample)[order(subset(heatmap_data, Sample == orderSample)$Count, decreasing = FALSE),1], ordered = TRUE
+#                                  )
 
 # Calculate percentages to add to plot
 if(length(bam_files) == 1){
