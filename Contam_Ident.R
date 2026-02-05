@@ -77,29 +77,31 @@ count_sequences <- function(bam_file, gene_ranges) {
 }
 
 # Function to summarize the same sequences even if they are mapped to different loci
-accumulateFragments <- function(x, accumulate, ntop = 10000, fuzzyness = 3){
+accumulateFragments <- function(x, ntop = 10000, seqLen = "shortest"){
   contams <- data.frame()
   y <- na.omit(unique(x$Sequence[1:1000000])[1:ntop])
+  if(seqLen != "shortest"){
+    y <- y[nchar(y) == seqLen] #Exchange == with >= to set a minimum length instead of a fixed length for your target sequences
+  }else{}
   y <- y[order(nchar(y))]
+  #print(y[1:100]) #For debugging
   ylen <- length(y)
   # Loop through all sequences from short to long
   while (length(y) > 0) {
     k <- y[1]
     #print(k) #For debugging
-    # Pick out set of sequences that match the shortest one of interest (fuzzy matching if desired)
-    if(accumulate == "fuzzy"){
-      temp <- x[grepl(substr(k, fuzzyness+1, nchar(k)-fuzzyness), x$Sequence),]
-    }else if(accumulate == "shortest"){
-      temp <- x[grepl(k, x$Sequence),]
-    }else if (accumulate == "sequence"){
-      temp <- x[x$Sequence == k,]
-    }else{print("accumulate must be either 'sequence', 'shortest' or 'fuzzy'")}
+    # Match sequences
+    temp <- x[grepl(k, x$Sequence),]
     # Sum up counts and collapse all mappings into a single character string
     temp <- temp[order(nchar(temp$Sequence)),]
     if(length(bam_files) == 1){
       temp[1,3:(2+length(sequence_counts_list))] <- sum(temp[,3:(2+length(sequence_counts_list))])
+      temp$Matches <- paste0(unique(temp$Sequence), collapse = ",")
+      temp[1,1] <- k
     }else{
       temp[1,3:(2+length(sequence_counts_list))] <- colSums(temp[,3:(2+length(sequence_counts_list))])
+      temp$Matches <- paste0(unique(temp$Sequence), collapse = ",")
+      temp[1,1] <- k
       }
     if(length(paste(unique(na.omit(temp$Gene_ID)), sep = ",")) > 0){
       temp$Gene_ID[1] <- paste(sort(unique(na.omit(temp$Gene_ID))), collapse = ",")
@@ -137,7 +139,7 @@ setwd(selectDirectory()) #window may appear behind R-Studio window, check if you
 #setwd("") #or set manually
 
 # Get list of BAM files in the current working directory
-bam_files <- list.files(pattern = "\\.out\\.bam$")[3]
+bam_files <- list.files(pattern = "\\.out\\.bam$")
 
 # Initialize an empty list to store sequence counts from each file
 sequence_counts_list <- list()
@@ -200,12 +202,11 @@ if(length(bam_files) == 1){
 # SUMMARIZE SEQUENCES ###############################################################################
 
 #Summarize sequences across loci
-# Accumulate counts of the same sequences
-# "sequence" to summarize by exact sequence
-# "shortest" to summarize all sequences that share a shortest common sequence
-# "fuzzy" is the same as shortest but allows for overhangs of 3 nt at each end (or set fuzzyness with argument)
+# Accumulate counts of matching sequences
+# seqLen = "shortest" to summarize all sequences that share a shortest common sequence. Recommended.
+# seqLen = any number to summarize sequences with a defined minimum length. Note: matching sequences shorter than the supplied length will not be summarized here, but will be able to bind to the LNA probe in vitro.
 # Lower the ntop parameter to speed up the analysis at the cost of less optimized target sequences.
-accumulated_sequences <- accumulateFragments(combined_sequence_counts, accumulate = "shortest", ntop = 10000)
+accumulated_sequences <- accumulateFragments(combined_sequence_counts, ntop = 10000, seqLen = "shortest")
 
 
 # RESULTS AND PLOTTING ###############################################################################
@@ -220,7 +221,7 @@ write.csv(accumulated_sequences, "./Contaminants.csv", row.names = FALSE)
 top <- 30
 
 # Transform data to long format for plotting and use top contaminant sequences
-heatmap_data <- accumulated_sequences[1:top,] %>% #Edit columns to include all or just specific samples (e.g. [1:top, 1:4] for first 4 samples)
+heatmap_data <- accumulated_sequences[1:top, -length(accumulated_sequences)] %>% #Edit columns to include all or just specific samples (e.g. [1:top, 1:4] for first 4 samples)
   gather(key = "Sample", value = "Count", -Sequence, -Gene_ID)
 heatmap_data$Gene_ID <- factor(accumulated_sequences$Gene_ID[1:top], levels = unique(accumulated_sequences$Gene_ID[1:top]), ordered = TRUE)
 
@@ -240,9 +241,9 @@ heatmap_data$Sequence <- factor(heatmap_data$Sequence, levels = rev(unique(heatm
 
 # Calculate percentages to add to plot
 if(length(bam_files) == 1){
-  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(sum(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))])), "%")
+  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(sum(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))-1])), "%")
 }else{
-  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(colSums(accumulated_sequences[1:top, 3:length(colnames(accumulated_sequences))])), "%")
+  heatmap_data$perc[heatmap_data$Sequence == heatmap_data$Sequence[1]] <- paste0(round(colSums(accumulated_sequences[1:top, 3:(length(colnames(accumulated_sequences))-1)])), "%")
 }
 
 # Optional: Cleanup sample names for plotting
