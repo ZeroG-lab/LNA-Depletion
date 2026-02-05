@@ -137,7 +137,7 @@ setwd(selectDirectory()) #window may appear behind R-Studio window, check if you
 #setwd("") #or set manually
 
 # Get list of BAM files in the current working directory
-bam_files <- list.files(pattern = "\\.out\\.bam$")
+bam_files <- list.files(pattern = "\\.out\\.bam$")[3]
 
 # Initialize an empty list to store sequence counts from each file
 sequence_counts_list <- list()
@@ -214,7 +214,7 @@ accumulated_sequences <- accumulateFragments(combined_sequence_counts, accumulat
 write.csv(accumulated_sequences, "./Contaminants.csv", row.names = FALSE)
 
 # Import table for plotting
-accumulated_sequences <- read.csv("./Contaminants.csv") #uncomment if you already ran the analysis and just want to plot the data or use the example dataset
+#accumulated_sequences <- read.csv("./Contaminants.csv") #uncomment if you already ran the analysis and just want to plot the data or use the example dataset
 
 # Define how many of the top contaminants you want to plot
 top <- 30
