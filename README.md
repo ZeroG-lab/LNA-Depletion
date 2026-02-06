@@ -17,5 +17,5 @@ Open the Contam_Ident.R script in R-Studio with a current R version (4.0+).
 
 Install and load all necessary packages as indicated in the script and follow the included instructions line by line.
 
-In case you just want to test the script, skip ahead to line 217 and import the provided Contaminants.csv file.
-This file contains the summarized contaminants from our growth condition tests and lets you try out the plotting functions.
+If you just want to test the script, use the alignments and annotation supplied in the ExampleData folder (unzip annotation before using).
+The alignments consist of two *Arabidopsis thaliana* Ribo-Seq libraries. One of them undepleted (No_LNA_1) and the other depleted with the five LNAs listed in the manuscript (LNA_1).
