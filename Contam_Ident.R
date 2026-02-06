@@ -211,11 +211,8 @@ accumulated_sequences <- accumulateFragments(combined_sequence_counts, ntop = 10
 
 # RESULTS AND PLOTTING ###############################################################################
 
-# Write the comparison table to a CSV file
+# Write the contaminants table to a CSV file
 write.csv(accumulated_sequences, "./Contaminants.csv", row.names = FALSE)
-
-# Import table for plotting
-#accumulated_sequences <- read.csv("./Contaminants.csv") #uncomment if you already ran the analysis and just want to plot the data or use the example dataset
 
 # Define how many of the top contaminants you want to plot
 top <- 30
