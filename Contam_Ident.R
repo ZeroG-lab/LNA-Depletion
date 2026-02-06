@@ -139,7 +139,7 @@ setwd(selectDirectory()) #window may appear behind R-Studio window, check if you
 #setwd("") #or set manually
 
 # Get list of BAM files in the current working directory
-bam_files <- list.files(pattern = "\\.out\\.bam$")
+bam_files <- list.files(pattern = "\\.bam$")
 
 # Initialize an empty list to store sequence counts from each file
 sequence_counts_list <- list()
