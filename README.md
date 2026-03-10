@@ -1,6 +1,7 @@
-# Repository for the publication titled: Data-driven design of LNA-blockers for efficient contaminant removal in Ribo-seq libraries
+# Repository for the publication titled: Data-driven design of LNA-blockers for efficient contaminant removal in Ribo-Seq libraries
+Published in Scientific Reports [https://doi.org/10.1038/s41598-026-43117-3](https://doi.org/10.1038/s41598-026-43117-3)
 ## Abstract
-Ribo-Seq libraries often contain abundant non-coding RNA contaminants, which, because of their high sequence variability and diverse fragmentation, are challenging to remove. We present a computational pipeline that identifies experiment-specific target sequences and allows for their efficient depletion using custom LNA probes in a single pipetting step, thereby increasing sequencing yield and reducing costs. A public LNA repository will support sharing validated targets within the research community.
+Ribo-Seq libraries often contain highly abundant non-coding RNA contaminants, which are challenging to remove due to their high sequence variability and diverse fragmentation patterns. We present an organism-independent computational pipeline that identifies experiment-specific target sequences and enables their efficient depletion using custom-tailored LNA probes in a single pipetting step. We demonstrate that LNA-based depletion is most effective during library amplification and has no effect on gene-level quantification. Contaminant depletion in Arabidopsis libraries nearly doubled the yield of coding reads, significantly improving cost-effectiveness.
 
 <img width="500" height="500" alt="GraphicalAbstract" src="https://github.com/user-attachments/assets/88297401-e86a-4c1d-9361-ee79d4f1908c" />
 
